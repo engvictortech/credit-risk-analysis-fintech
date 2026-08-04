@@ -187,4 +187,4 @@ Construção de dashboard executivo
 
 * Experiência em Crédito B2B e B2C
 
-* Foco em análise de risco e tomada de decisão baseada em dado
+* Foco em análise de risco e tomada de decisão baseada em dados
