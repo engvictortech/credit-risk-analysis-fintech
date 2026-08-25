@@ -1,0 +1,53 @@
+{
+  "regressao_linear": {
+    "mae": 0.2537,
+    "rmse": 0.3068,
+    "r2": 0.3853,
+    "coeficientes": {
+      "taxa_desemprego": -0.2394,
+      "taxa_juros": 0.2477,
+      "taxa_desemprego_lag1": -0.1477,
+      "taxa_juros_lag1": -0.2468,
+      "taxa_desemprego_lag3": 1.3646,
+      "taxa_juros_lag3": 0.4018,
+      "taxa_desemprego_lag6": -0.0738,
+      "taxa_juros_lag6": -0.0712
+    }
+  },
+  "classificacao": [
+    {
+      "modelo": "Regressão Logística",
+      "acuracia": 0.8182,
+      "precisao": 0.8571,
+      "recall": 0.9474,
+      "roc_auc": 0.807,
+      "matriz_confusao": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          18
+        ]
+      ]
+    },
+    {
+      "modelo": "Random Forest",
+      "acuracia": 0.8636,
+      "precisao": 0.8636,
+      "recall": 1.0,
+      "roc_auc": 0.7895,
+      "matriz_confusao": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          19
+        ]
+      ]
+    }
+  ]
+}

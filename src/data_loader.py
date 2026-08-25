@@ -1,55 +1,48 @@
 """
-Corporate Risk & Performance Assistant
-Data Loading Module
-
-Responsável por:
-- Carregar dados
-- Validar estrutura
-- Tratar inconsistências
-- Retornar DataFrame pronto para análise
+data_loader.py
+--------------
+Carregamento, validação e tratamento inicial da série temporal macro.
 """
 
+from __future__ import annotations
+
 import pandas as pd
-import os
 
 
-class DataLoader:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
+def carregar_serie(caminho_csv: str) -> pd.DataFrame:
+    """Carrega a série temporal a partir de um CSV e valida a estrutura.
 
-    def load_data(self) -> pd.DataFrame:
-        """
-        Carrega os dados de um arquivo CSV.
-        """
-        if not os.path.exists(self.file_path):
-            raise FileNotFoundError(f"Arquivo não encontrado: {self.file_path}")
+    Args:
+        caminho_csv: caminho do arquivo CSV de origem.
 
-        print("📥 Carregando dados...")
-        df = pd.read_csv(self.file_path)
+    Returns:
+        DataFrame ordenado cronologicamente, com a coluna 'data' como
+        datetime e índice temporal.
 
-        print("✅ Dados carregados com sucesso!")
-        return df
+    Raises:
+        ValueError: se colunas obrigatórias estiverem ausentes.
+    """
+    df = pd.read_csv(caminho_csv, parse_dates=["data"])
 
-    def validate_data(self, df: pd.DataFrame) -> None:
-        """
-        Valida estrutura básica do dataset.
-        """
-        print("🔎 Validando estrutura dos dados...")
+    colunas_esperadas = {"data", "taxa_desemprego", "taxa_juros", "taxa_inadimplencia"}
+    faltantes = colunas_esperadas - set(df.columns)
+    if faltantes:
+        raise ValueError(f"Colunas obrigatórias ausentes no dataset: {faltantes}")
 
-        if df.empty:
-            raise ValueError("O dataset está vazio!")
+    df = df.sort_values("data").reset_index(drop=True)
 
-        print(f"📊 Linhas: {df.shape[0]}")
-        print(f"📊 Colunas: {df.shape[1]}")
-        print("✅ Validação concluída!")
+    # Tratamento de valores ausentes: interpolação temporal (não usar média
+    # global, que quebraria a estrutura de série temporal)
+    colunas_numericas = ["taxa_desemprego", "taxa_juros", "taxa_inadimplencia"]
+    n_nulos_antes = df[colunas_numericas].isna().sum().sum()
+    df[colunas_numericas] = df[colunas_numericas].interpolate(method="linear")
+    if n_nulos_antes > 0:
+        print(f"[data_loader] {n_nulos_antes} valores ausentes tratados por interpolação linear.")
 
-    def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Tratamento inicial de dados.
-        """
-        print("🧹 Tratando valores nulos...")
+    return df
 
-        df = df.dropna()
 
-        print("✅ Dados tratados com sucesso!")
-        return df
+if __name__ == "__main__":
+    df = carregar_serie("data/raw/serie_macro_inadimplencia.csv")
+    print(df.info())
+    print(df.describe())
